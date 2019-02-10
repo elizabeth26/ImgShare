@@ -36,7 +36,7 @@ ctrl.create=(req,res)=>{
                 });
                 const Imagesave=await newImg.save();
 
-                res.send('works');
+                res.redirect('/images/'+ imgUrl);
             }
             else{
                 await fs.unlink(imageTempPath);
