@@ -2,7 +2,8 @@ const path=require('path');
 const {randomNumber}=require('../helpers/libs');
 const fs=require('fs-extra');
 
-const  {Image}=require('../models/index');
+
+const  {Image,Comment}=require('../models/index');
 
 const ctrl={};
 ctrl.index=async(req,res)=>{
@@ -59,7 +60,10 @@ ctrl.like=(req,res)=>{
 };
 
 ctrl.comment=(req,res)=>{
-
+console.log(req.body);
+const newComment=new Comment(req.body)
+console.log(newComment);
+res.send("comm");
 };
 
 ctrl.remove=(req,res)=>{
