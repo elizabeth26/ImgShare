@@ -7,15 +7,13 @@ const  {Image,Comment}=require('../models/index');
 
 const ctrl={};
 ctrl.index=async(req,res)=>{
- const viewModel={image:{},comments:{}};
+ 
  const image=await Image.findOne({filename:{$regex:req.params.image_id}});
  if(image){
     image.views=image.views+1;
     await image.save();
-    viewModel.image=image;
     const comments=await Comment.find({image_id:image._id})
-    viewModel.comments=comments;
-    res.render('image',{viewModel});
+    res.render('image',{image,comments});
  }
  else{
      res.redirect('/');
@@ -57,8 +55,17 @@ ctrl.create=(req,res)=>{
     saveImage();
 };
 
-ctrl.like=(req,res)=>{
+ctrl.like=async (req,res)=>{
+    const image= await Image.findOne({filename: {$regex: req.params.image_id}})
+    if(image){
+        image.likes=image.likes+1; 
+        await image.save();
+        res.json({likes: image.likes})
+    }
 
+    else{
+        res.status(500).json({error: 'Internal Error'});
+    }
 };
 
 ctrl.comment=async(req,res)=>{
