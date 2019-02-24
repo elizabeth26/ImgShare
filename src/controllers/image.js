@@ -1,7 +1,7 @@
 const path=require('path');
 const {randomNumber}=require('../helpers/libs');
 const fs=require('fs-extra');
-
+const md5=require('md5');
 
 const  {Image,Comment}=require('../models/index');
 
@@ -59,11 +59,15 @@ ctrl.like=(req,res)=>{
 
 };
 
-ctrl.comment=(req,res)=>{
-console.log(req.body);
-const newComment=new Comment(req.body)
-console.log(newComment);
-res.send("comm");
+ctrl.comment=async(req,res)=>{
+const image= await Image.findOne({filename: {$regex: req.params.image_id}})
+if(image){
+    const newComment=new Comment(req.body);
+    newComment.gravatar=md5(newComment.email);
+    newComment.image_id=image._id;
+    await newComment.save();
+    res.redirect('/images/'+image.uniqueId);
+}
 };
 
 ctrl.remove=(req,res)=>{
