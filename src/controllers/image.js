@@ -7,14 +7,23 @@ const  {Image,Comment}=require('../models/index');
 
 const ctrl={};
 ctrl.index=async(req,res)=>{
-//console.log('param',req.params.image_id)
+ const viewModel={image:{},comments:{}};
  const image=await Image.findOne({filename:{$regex:req.params.image_id}});
- console.log('image');
- res.render('image',{image});
+ if(image){
+    image.views=image.views+1;
+    await image.save();
+    viewModel.image=image;
+    const comments=await Comment.find({image_id:image._id})
+    viewModel.comments=comments;
+    res.render('image',{viewModel});
+ }
+ else{
+     res.redirect('/');
+ }
+
 };
 
 ctrl.create=(req,res)=>{
-
     const saveImage=async()=>{   
         const imgUrl= randomNumber();
         const images=await Image.find({filename:imgUrl});
@@ -43,16 +52,9 @@ ctrl.create=(req,res)=>{
                 await fs.unlink(imageTempPath);
                 res.status(500).json({error:'Only images are allowed'})
             }
-            
-
         }     
     }
-
     saveImage();
-
-
-
-
 };
 
 ctrl.like=(req,res)=>{
@@ -67,6 +69,9 @@ if(image){
     newComment.image_id=image._id;
     await newComment.save();
     res.redirect('/images/'+image.uniqueId);
+}
+else{
+    res.redirect('/');
 }
 };
 
